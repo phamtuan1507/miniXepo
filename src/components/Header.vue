@@ -411,53 +411,58 @@ import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import mitt from "mitt";
 
+type Events = {
+  "cart-updated": void;
+  "user-updated": string;
+};
+
+const emitter = mitt<Events>();
+
+interface CartItem {
+  id: string;
+  name: string;
+  quantity: number;
+}
+
 const openMobileMenu = ref(false);
 const mobileServiceOpen = ref(false);
 const openSearch = ref(false);
+const token = ref<string | null>(localStorage.getItem("token") || null);
+const userName = ref("");
+const isAdmin = ref(false);
+const cart = ref<CartItem[]>([]);
+
 function toggleServiceMenu() {
   mobileServiceOpen.value = !mobileServiceOpen.value;
 }
+
 function openSearchForm() {
   openSearch.value = true;
 }
+
 function closeSearchForm() {
   openSearch.value = false;
 }
 
-// Tạo EventBus
-const emitter = mitt();
-
-// State
-const cartItems = ref(JSON.parse(localStorage.getItem("cart") || "[]"));
-const token = ref(localStorage.getItem("token") || null); // Khai báo token
-const userName = ref("");
-const isAdmin = ref(false);
-
-// Tải giỏ hàng từ localStorage
-const cart = ref([]);
 const loadCart = () => {
   const savedCart = localStorage.getItem("cart");
   cart.value = savedCart ? JSON.parse(savedCart) : [];
 };
 
-// Tính số lượng sản phẩm trong giỏ hàng
 const cartItemCount = computed(() => {
   return cart.value.reduce((total, item) => total + (item.quantity || 0), 0);
 });
 
-// Điều hướng đến trang giỏ hàng
 const router = useRouter();
 const goToCart = () => {
   router.push("/cart");
 };
 
-// Lắng nghe sự kiện cart-updated
 const handleCartUpdate = () => {
   loadCart();
 };
 
-// Lắng nghe sự kiện storage cho các tab khác
-const handleStorageChange = (event) => {
+const handleStorageChange = (event: StorageEvent) => {
   if (event.key === "cart") {
     loadCart();
   }
@@ -467,7 +472,6 @@ const handleStorageChange = (event) => {
   }
 };
 
-// Đăng ký sự kiện khi component được mount
 onMounted(() => {
   loadCart();
   emitter.on("cart-updated", handleCartUpdate);
@@ -475,16 +479,13 @@ onMounted(() => {
   fetchUserProfile();
 });
 
-// Dọn dẹp sự kiện khi component bị unmount
 onUnmounted(() => {
   emitter.off("cart-updated", handleCartUpdate);
   window.removeEventListener("storage", handleStorageChange);
 });
 
-// Kiểm tra trạng thái đăng nhập
 const isLoggedIn = computed(() => !!token.value);
 
-// Lấy thông tin người dùng khi đã đăng nhập
 const fetchUserProfile = async () => {
   if (!token.value) {
     isAdmin.value = false;
@@ -497,7 +498,7 @@ const fetchUserProfile = async () => {
     const data = await response.json();
     if (response.ok) {
       userName.value = data.fullName || data.username;
-      isAdmin.value = data.role === "admin"; // Giả định API trả về role
+      isAdmin.value = data.role === "admin";
     } else {
       console.error("Lấy thông tin người dùng thất bại:", data.message);
       logout();
@@ -508,7 +509,6 @@ const fetchUserProfile = async () => {
   }
 };
 
-// Đăng xuất
 const logout = () => {
   localStorage.removeItem("token");
   token.value = null;
@@ -517,22 +517,19 @@ const logout = () => {
   router.push("/login");
 };
 
-// Hiển thị profile (tạm thời chỉ log thông tin)
 const showProfile = () => {
   console.log("Profile:", { name: userName.value, token: token.value });
-  // Có thể thêm logic chuyển đến trang profile nếu cần
 };
 
-// Lắng nghe sự kiện cập nhật giỏ hàng và người dùng
 emitter.on("cart-updated", () => {
-  cartItems.value = JSON.parse(localStorage.getItem("cart") || "[]");
-});
-emitter.on("user-updated", (name) => {
-  userName.value = name;
-  fetchUserProfile(); // Cập nhật lại role khi user thay đổi
+  loadCart();
 });
 
-// Theo dõi thay đổi token từ localStorage
+emitter.on("user-updated", (name: string) => {
+  userName.value = name;
+  fetchUserProfile();
+});
+
 watch(
   () => localStorage.getItem("token"),
   (newToken) => {
