@@ -303,7 +303,7 @@ const maxQuantities = ref({});
 const fetchMaxQuantities = async () => {
   try {
     const promises = cartItems.value.map(async (item) => {
-      const response = await fetch(`http://localhost:3000/products/${item.id}`);
+      const response = await fetch(`https://miniassignmentxepo-production.up.railway.app/products/${item.id}`);
       if (response.ok) {
         const data = await response.json();
         maxQuantities.value[item.id] = data.quantity || 100;
@@ -321,7 +321,7 @@ const fetchMaxQuantities = async () => {
 const fetchUserProfile = async () => {
   if (token.value) {
     try {
-      const response = await fetch("http://localhost:3000/users/profile", {
+      const response = await fetch("https://miniassignmentxepo-production.up.railway.app/users/profile", {
         headers: { Authorization: `Bearer ${token.value}` },
       });
       const data = await response.json();

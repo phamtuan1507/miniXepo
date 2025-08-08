@@ -8,7 +8,7 @@ const token = localStorage.getItem('token');
 // Fetch users list
 const fetchUsers = async () => {
     try {
-        const response = await fetch('http://localhost:3000/users', {
+        const response = await fetch('https://miniassignmentxepo-production.up.railway.app/users', {
             headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
@@ -34,7 +34,7 @@ const filteredUsers = computed(() => {
 // View user details
 const viewUser = async (userId) => {
     try {
-        const response = await fetch(`http://localhost:3000/users/${userId}`, {
+        const response = await fetch(`https://miniassignmentxepo-production.up.railway.app/users/${userId}`, {
             headers: { Authorization: `Bearer ${token}` },
         });
         const data = await response.json();
@@ -53,7 +53,7 @@ const viewUser = async (userId) => {
 const deleteUser = async (userId) => {
     if (confirm('Bạn có chắc muốn xóa người dùng này?')) {
         try {
-            const response = await fetch(`http://localhost:3000/users/${userId}`, {
+            const response = await fetch(`https://miniassignmentxepo-production.up.railway.app/users/${userId}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
             });

@@ -58,7 +58,7 @@ const fetchUserProfile = async () => {
         return;
     }
     try {
-        const response = await fetch("http://localhost:3000/users/profile", {
+        const response = await fetch("https://miniassignmentxepo-production.up.railway.app/users/profile", {
             headers: { Authorization: `Bearer ${token.value}` },
         });
         const data = await response.json();

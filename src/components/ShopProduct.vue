@@ -157,7 +157,7 @@ const isLoading = ref(false);
 const fetchProducts = async () => {
   isLoading.value = true;
   try {
-    const response = await fetch("http://localhost:3000/products");
+    const response = await fetch("https://miniassignmentxepo-production.up.railway.app/products");
     if (!response.ok) throw new Error("Lỗi khi lấy sản phẩm từ API");
     const data = await response.json();
     products.value = data.map((item) => ({

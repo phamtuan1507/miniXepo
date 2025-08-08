@@ -27,7 +27,7 @@ const productId = route.params.id;
 const fetchProduct = async () => {
     isLoading.value = true;
     try {
-        const response = await fetch(`http://localhost:3000/products/${productId}`);
+        const response = await fetch(`https://miniassignmentxepo-production.up.railway.app/products/${productId}`);
         if (!response.ok)
             throw new Error("Sản phẩm không tồn tại");
         const data = await response.json();

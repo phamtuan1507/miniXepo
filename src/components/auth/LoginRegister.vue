@@ -225,7 +225,7 @@ const switchTab = (tab) => {
 // Đăng nhập
 const login = async () => {
   try {
-    const response = await fetch("http://localhost:3000/auth/login", {
+    const response = await fetch("https://miniassignmentxepo-production.up.railway.app/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -255,7 +255,7 @@ const register = async () => {
     return;
   }
   try {
-    const response = await fetch("http://localhost:3000/users", {
+    const response = await fetch("https://miniassignmentxepo-production.up.railway.app/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -288,7 +288,7 @@ const fetchUserProfile = async () => {
   }
   console.log("Gửi token:", token); // Debug token
   try {
-    const response = await fetch("http://localhost:3000/users/profile", {
+    const response = await fetch("https://miniassignmentxepo-production.up.railway.app/users/profile", {
       method: "GET",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     });

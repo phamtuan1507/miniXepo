@@ -307,7 +307,7 @@ const postId = route.params.id;
 const fetchPost = async () => {
   isLoading.value = true;
   try {
-    const response = await axios.get(`http://localhost:3000/blogs/${postId}`);
+    const response = await axios.get(`https://miniassignmentxepo-production.up.railway.app/blogs/${postId}`);
     post.value = response.data;
   } catch (error) {
     console.error("Lỗi khi lấy bài viết:", error);
@@ -320,7 +320,7 @@ const fetchPost = async () => {
 // Fetch comments from API
 const fetchComments = async () => {
   try {
-    const response = await axios.get(`http://localhost:3000/comments/${postId}`);
+    const response = await axios.get(`https://miniassignmentxepo-production.up.railway.app/comments/${postId}`);
     comments.value = response.data;
   } catch (error) {
     console.error("Lỗi khi lấy bình luận:", error);
@@ -354,7 +354,7 @@ const submitComment = async () => {
   try {
     console.log("Sending comment to API with token:", token.value); // Debug log
     const response = await axios.post(
-      "http://localhost:3000/comments",
+      "https://miniassignmentxepo-production.up.railway.app/comments",
       {
         content: commentForm.value.content,
         blogId: postId,
@@ -375,7 +375,7 @@ const submitComment = async () => {
 const deleteComment = async (commentId) => {
   if (confirm("Bạn có chắc chắn muốn xóa bình luận này?")) {
     try {
-      await axios.delete(`http://localhost:3000/comments/${commentId}`, {
+      await axios.delete(`https://miniassignmentxepo-production.up.railway.app/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token.value}` },
       });
       fetchComments();
@@ -389,11 +389,11 @@ const deleteComment = async (commentId) => {
 // Fetch recent posts
 const fetchRecentPosts = async () => {
   try {
-    const response = await axios.get("http://localhost:3000/blogs", {
+    const response = await axios.get("https://miniassignmentxepo-production.up.railway.app/blogs", {
       params: { limit: 5, sort: "createdAt" },
     });
     recentPosts.value = response.data;
-    const allResponse = await axios.get("http://localhost:3000/blogs");
+    const allResponse = await axios.get("https://miniassignmentxepo-production.up.railway.app/blogs");
     BlogCategory.value = [
       { cate: "Allgemein", no: allResponse.data.length },
       ...[...new Set(allResponse.data.map((item) => item.categoryName))].map((cate) => ({

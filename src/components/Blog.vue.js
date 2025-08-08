@@ -25,7 +25,7 @@ const fetchPosts = async (page = 1) => {
     isLoading.value = true;
     const offset = (page - 1) * itemsPerPage;
     try {
-        const response = await axios.get("http://localhost:3000/blogs", {
+        const response = await axios.get("https://miniassignmentxepo-production.up.railway.app/blogs", {
             params: { offset, limit: itemsPerPage },
         });
         posts.value = response.data.map((item) => ({
@@ -51,7 +51,7 @@ const fetchPosts = async (page = 1) => {
 // Fetch recent posts
 const fetchRecentPosts = async () => {
     try {
-        const response = await axios.get("http://localhost:3000/blogs", {
+        const response = await axios.get("https://miniassignmentxepo-production.up.railway.app/blogs", {
             params: { limit: 5, sort: "createdAt" },
         });
         recentPosts.value = response.data.map((item) => ({
@@ -61,7 +61,7 @@ const fetchRecentPosts = async () => {
             createdAt: item.createdAt,
         }));
         // Cập nhật danh mục
-        const allResponse = await axios.get("http://localhost:3000/blogs");
+        const allResponse = await axios.get("https://miniassignmentxepo-production.up.railway.app/blogs");
         BlogCategory.value = [
             { cate: "Allgemein", no: allResponse.data.length },
             ...[...new Set(allResponse.data.map((item) => item.categoryName))].map((cate) => ({

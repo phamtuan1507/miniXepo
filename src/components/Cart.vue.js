@@ -19,7 +19,7 @@ const fetchMaxQuantities = async () => {
     isLoading.value = true;
     try {
         const promises = cartItems.value.map(async (item) => {
-            const response = await fetch(`http://localhost:3000/products/${item.id}`);
+            const response = await fetch(`https://miniassignmentxepo-production.up.railway.app/products/${item.id}`);
             if (response.ok) {
                 const data = await response.json();
                 maxQuantities.value[item.id] = data.quantity || 100; // Mặc định 100 nếu không có

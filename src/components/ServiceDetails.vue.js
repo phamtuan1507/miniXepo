@@ -55,7 +55,7 @@ const partners = [
 const fetchService = async () => {
     isLoading.value = true;
     try {
-        const response = await fetch(`http://localhost:3000/service-relax/${serviceId}`);
+        const response = await fetch(`https://miniassignmentxepo-production.up.railway.app/service-relax/${serviceId}`);
         if (!response.ok)
             throw new Error('Dịch vụ không tồn tại');
         const data = await response.json();

@@ -54,7 +54,7 @@ const partners = [
 const fetchSpaItems = async () => {
     isLoading.value = true;
     try {
-        const response = await fetch("http://localhost:3000/service-relax");
+        const response = await fetch("https://miniassignmentxepo-production.up.railway.app/service-relax");
         if (!response.ok)
             throw new Error("Lỗi khi lấy danh sách dịch vụ");
         const data = await response.json();

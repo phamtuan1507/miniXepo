@@ -7,7 +7,7 @@ const router = useRouter();
 const teamList = ref([]);
 const fetchExperts = async () => {
     try {
-        const response = await fetch("http://localhost:3000/experts");
+        const response = await fetch("https://miniassignmentxepo-production.up.railway.app/experts");
         if (response.ok) {
             teamList.value = await response.json();
         }

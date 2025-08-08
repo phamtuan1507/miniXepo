@@ -104,7 +104,7 @@ const expert = ref(null);
 const fetchExpert = async () => {
   try {
     const response = await fetch(
-      `http://localhost:3000/experts/${route.params.id}`
+      `https://miniassignmentxepo-production.up.railway.app/experts/${route.params.id}`
     );
     if (response.ok) {
       const data = await response.json();
