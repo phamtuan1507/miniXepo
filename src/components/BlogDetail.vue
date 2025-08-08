@@ -79,7 +79,7 @@
                         d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
                       />
                     </svg>
-                    {{ post.commentCount || "0" }} Bình luận
+                    {{ post.commentCount || 0 }} Bình luận
                   </span>
                 </div>
                 <div>{{ post.content }}</div>
@@ -96,7 +96,7 @@
               </div>
               <div v-else class="mt-4 space-y-4">
                 <div v-for="comment in comments" :key="comment.id" class="pb-2 border-b">
-                  <p class="font-semibold">{{ comment.userId }}</p> <!-- Giả định userId là tên -->
+                  <p class="font-semibold">{{ comment.userId }}</p>
                   <p class="text-gray-600">{{ comment.content }}</p>
                   <p class="text-sm text-gray-500">{{ formatDate(comment.createdAt) }}</p>
                   <button
@@ -277,7 +277,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Header from "./Header.vue";
 import Footer from "./Footer.vue";
@@ -308,7 +308,13 @@ const fetchPost = async () => {
   isLoading.value = true;
   try {
     const response = await axios.get(`https://miniassignmentxepo-production.up.railway.app/blogs/${postId}`);
-    post.value = response.data;
+    post.value = {
+      ...response.data,
+      commentCount: 0, // Initialize commentCount
+    };
+    // Fetch comments to calculate commentCount
+    await fetchComments();
+    post.value.commentCount = comments.value.length; // Set commentCount based on fetched comments
   } catch (error) {
     console.error("Lỗi khi lấy bài viết:", error);
     post.value = null;
@@ -330,14 +336,16 @@ const fetchComments = async () => {
 
 // Submit comment
 const submitComment = async () => {
-  console.log("submitComment called, isLoggedIn:", isLoggedIn.value, "token:", token.value); // Debug log
   if (!commentForm.value.content) {
-    alert("Vui lòng điền nội dung bình luận!");
+    Swal.fire({
+      icon: "warning",
+      title: "Lỗi",
+      text: "Vui lòng điền nội dung bình luận!",
+    });
     return;
   }
   if (!isLoggedIn.value) {
-    console.log("User not logged in, showing popup"); // Debug log
-    this.$swal.fire({
+    Swal.fire({
       icon: "warning",
       title: "Vui lòng đăng nhập",
       text: "Bạn cần đăng nhập để có thể bình luận!",
@@ -346,14 +354,13 @@ const submitComment = async () => {
       cancelButtonText: "Hủy",
     }).then((result) => {
       if (result.isConfirmed) {
-        router.push("/login"); // Thay bằng route đăng nhập thực tế
+        router.push("/login");
       }
     });
     return;
   }
   try {
-    console.log("Sending comment to API with token:", token.value); // Debug log
-    const response = await axios.post(
+    await axios.post(
       "https://miniassignmentxepo-production.up.railway.app/comments",
       {
         content: commentForm.value.content,
@@ -362,26 +369,48 @@ const submitComment = async () => {
       },
       { headers: { Authorization: `Bearer ${token.value}` } }
     );
-    console.log("Comment sent successfully:", response.data); // Debug log
     commentForm.value.content = "";
-    fetchComments();
-    if (post.value) post.value.commentCount = (post.value.commentCount || 0) + 1;
+    await fetchComments();
+    if (post.value) post.value.commentCount = comments.value.length;
   } catch (error) {
-    console.error("Lỗi khi gửi bình luận:", error.response ? error.response.data : error.message);
+    console.error("Lỗi khi gửi bình luận:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: "Không thể gửi bình luận. Vui lòng thử lại!",
+    });
   }
 };
 
 // Delete comment
 const deleteComment = async (commentId) => {
-  if (confirm("Bạn có chắc chắn muốn xóa bình luận này?")) {
+  const result = await Swal.fire({
+    icon: "question",
+    title: "Xác nhận",
+    text: "Bạn có chắc chắn muốn xóa bình luận này?",
+    showCancelButton: true,
+    confirmButtonText: "Xóa",
+    cancelButtonText: "Hủy",
+  });
+  if (result.isConfirmed) {
     try {
       await axios.delete(`https://miniassignmentxepo-production.up.railway.app/comments/${commentId}`, {
         headers: { Authorization: `Bearer ${token.value}` },
       });
-      fetchComments();
-      if (post.value) post.value.commentCount = Math.max(0, (post.value.commentCount || 0) - 1);
+      await fetchComments();
+      if (post.value) post.value.commentCount = comments.value.length;
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Bình luận đã được xóa!",
+      });
     } catch (error) {
       console.error("Lỗi khi xóa bình luận:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể xóa bình luận. Vui lòng thử lại!",
+      });
     }
   }
 };
@@ -392,7 +421,15 @@ const fetchRecentPosts = async () => {
     const response = await axios.get("https://miniassignmentxepo-production.up.railway.app/blogs", {
       params: { limit: 5, sort: "createdAt" },
     });
-    recentPosts.value = response.data;
+    recentPosts.value = await Promise.all(
+      response.data.map(async (item) => ({
+        id: item.id,
+        title: item.title,
+        image: item.image,
+        createdAt: item.createdAt,
+        commentCount: await fetchCommentCount(item.id),
+      }))
+    );
     const allResponse = await axios.get("https://miniassignmentxepo-production.up.railway.app/blogs");
     BlogCategory.value = [
       { cate: "Allgemein", no: allResponse.data.length },
@@ -404,6 +441,17 @@ const fetchRecentPosts = async () => {
   } catch (error) {
     console.error("Lỗi khi lấy tin tức mới:", error);
     recentPosts.value = [];
+  }
+};
+
+// Fetch comment count for a single post
+const fetchCommentCount = async (postId) => {
+  try {
+    const response = await axios.get(`https://miniassignmentxepo-production.up.railway.app/comments/${postId}`);
+    return response.data.length || 0;
+  } catch (error) {
+    console.error(`Lỗi khi lấy số lượng bình luận cho bài viết ${postId}:`, error);
+    return 0;
   }
 };
 
@@ -434,8 +482,7 @@ const goToPostDetail = (id) => {
 
 // Initialize data
 onMounted(async () => {
-  console.log("onMounted, token:", token.value, "isLoggedIn:", isLoggedIn.value); // Debug log
-  await Promise.all([fetchPost(), fetchComments(), fetchRecentPosts()]);
+  await Promise.all([fetchPost(), fetchRecentPosts()]);
   searchQuery.value = route.query.search || "";
   selectedCategory.value = route.query.category || null;
 });

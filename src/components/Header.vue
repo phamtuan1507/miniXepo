@@ -19,7 +19,7 @@
           </li>
           <li class="relative group">
             <router-link
-              to="/services"
+              to="#"
               class="hover:text-[#7a4a2f] flex items-center"
             >
               DỊCH VỤ
@@ -42,7 +42,7 @@
             >
               <li>
                 <router-link
-                  to="/portfolio"
+                  to="/services"
                   class="flex items-center px-5 py-2 hover:text-[#7a4a2f]"
                 >
                   <span class="mr-2 w-2 h-2 bg-[#7a4a2f] rounded-full"></span>
